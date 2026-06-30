@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "reeve"
+version = "0.1.0"
+description = "REeve — AI-powered binary reverse engineering assistant"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.40.0",
+    "openai>=1.50.0",
+    "networkx>=3.3",
+    "pyghidra>=1.2.0",
+    "click>=8.1.7",
+    "textual>=0.85.0",
+    "rich>=13.9.0",
+    "z3-solver>=4.13.0",
+    "pydantic>=2.9.0",
+    "msgpack>=1.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+]
+
+[project.scripts]
+reeve = "reeve.__main__:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["reeve"]

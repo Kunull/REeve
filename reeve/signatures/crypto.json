@@ -1,0 +1,22 @@
+[
+  {"name": "AES_encrypt",       "categories": ["crypto", "aes"],  "byte_patterns": [], "import_aliases": ["AES_encrypt", "AES_cbc_encrypt", "BCryptEncrypt", "CryptEncrypt"]},
+  {"name": "AES_decrypt",       "categories": ["crypto", "aes"],  "byte_patterns": [], "import_aliases": ["AES_decrypt", "AES_cbc_decrypt", "BCryptDecrypt", "CryptDecrypt"]},
+  {"name": "AES_set_encrypt_key","categories": ["crypto", "aes"], "byte_patterns": [], "import_aliases": ["AES_set_encrypt_key", "BCryptSetProperty"]},
+  {"name": "MD5_Init",          "categories": ["crypto", "hash"], "byte_patterns": [], "import_aliases": ["MD5_Init", "MD5Init", "CryptCreateHash"]},
+  {"name": "MD5_Update",        "categories": ["crypto", "hash"], "byte_patterns": [], "import_aliases": ["MD5_Update", "MD5Update", "CryptHashData"]},
+  {"name": "MD5_Final",         "categories": ["crypto", "hash"], "byte_patterns": [], "import_aliases": ["MD5_Final", "MD5Final", "CryptGetHashParam"]},
+  {"name": "SHA256_Init",       "categories": ["crypto", "hash"], "byte_patterns": [], "import_aliases": ["SHA256_Init", "SHA256Init", "sha256_init"]},
+  {"name": "SHA256_Update",     "categories": ["crypto", "hash"], "byte_patterns": [], "import_aliases": ["SHA256_Update", "SHA256Update", "sha256_update"]},
+  {"name": "SHA256_Final",      "categories": ["crypto", "hash"], "byte_patterns": [], "import_aliases": ["SHA256_Final", "SHA256Final", "sha256_final"]},
+  {"name": "SHA1_Init",         "categories": ["crypto", "hash"], "byte_patterns": [], "import_aliases": ["SHA1_Init", "SHA1Init", "sha1_init"]},
+  {"name": "EVP_EncryptInit_ex","categories": ["crypto", "openssl"], "byte_patterns": [], "import_aliases": ["EVP_EncryptInit_ex", "EVP_EncryptInit"]},
+  {"name": "EVP_DecryptInit_ex","categories": ["crypto", "openssl"], "byte_patterns": [], "import_aliases": ["EVP_DecryptInit_ex", "EVP_DecryptInit"]},
+  {"name": "EVP_DigestInit_ex", "categories": ["crypto", "openssl"], "byte_patterns": [], "import_aliases": ["EVP_DigestInit_ex", "EVP_DigestInit"]},
+  {"name": "RSA_public_encrypt","categories": ["crypto", "rsa"],  "byte_patterns": [], "import_aliases": ["RSA_public_encrypt", "RSA_private_decrypt", "RSA_sign"]},
+  {"name": "RC4",               "categories": ["crypto", "stream"], "byte_patterns": [], "import_aliases": ["RC4", "rc4", "arc4"]},
+  {"name": "DES_ecb_encrypt",   "categories": ["crypto", "des"],  "byte_patterns": [], "import_aliases": ["DES_ecb_encrypt", "DES_cbc_encrypt"]},
+  {"name": "CRC32",             "categories": ["crypto", "checksum"], "byte_patterns": [], "import_aliases": ["CRC32", "crc32", "crc32c"]},
+  {"name": "HMAC",              "categories": ["crypto", "mac"],  "byte_patterns": [], "import_aliases": ["HMAC", "HMAC_Init", "HMAC_Update", "HMAC_Final"]},
+  {"name": "SSL_connect",       "categories": ["network", "tls"], "byte_patterns": [], "import_aliases": ["SSL_connect", "SSL_accept", "SSL_read", "SSL_write"]},
+  {"name": "RAND_bytes",        "categories": ["crypto", "random"], "byte_patterns": [], "import_aliases": ["RAND_bytes", "RAND_pseudo_bytes", "BCryptGenRandom"]}
+]

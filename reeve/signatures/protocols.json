@@ -1,0 +1,52 @@
+[
+  {
+    "name": "http_request",
+    "description": "HTTP request markers",
+    "string_patterns": ["GET ", "POST ", "PUT ", "DELETE ", "HTTP/1.", "HTTP/2", "Content-Type:", "Content-Length:", "User-Agent:", "Host:", "Authorization:", "Cookie:"],
+    "categories": ["network", "http"]
+  },
+  {
+    "name": "tls_handshake",
+    "description": "TLS/SSL handshake markers",
+    "string_patterns": ["TLSv", "SSLv", "CERTIFICATE", "-----BEGIN", "-----END", "CLIENT HELLO", "SERVER HELLO"],
+    "categories": ["network", "tls"]
+  },
+  {
+    "name": "smb_protocol",
+    "description": "SMB/CIFS protocol markers",
+    "string_patterns": ["\\\\PIPE\\\\", "SMB", "NTLMSSP", "IPC$", "ADMIN$", "C$"],
+    "categories": ["network", "smb"]
+  },
+  {
+    "name": "dns_query",
+    "description": "DNS query markers",
+    "string_patterns": [".local", ".home", ".internal"],
+    "import_patterns": ["getaddrinfo", "gethostbyname", "DnsQuery"],
+    "categories": ["network", "dns"]
+  },
+  {
+    "name": "c2_beacon",
+    "description": "C2 beacon / RAT markers",
+    "string_patterns": ["/api/", "/gate", "/check", "/poll", "beacon", "checkin", "heartbeat", "implant"],
+    "categories": ["network", "c2"]
+  },
+  {
+    "name": "persistence_registry",
+    "description": "Windows registry persistence",
+    "string_patterns": ["SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run", "HKEY_CURRENT_USER\\\\Software\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\\\\Winlogon", "CurrentVersion\\\\RunOnce"],
+    "categories": ["persistence", "registry"]
+  },
+  {
+    "name": "process_injection",
+    "description": "Process injection markers",
+    "import_patterns": ["VirtualAllocEx", "WriteProcessMemory", "CreateRemoteThread", "NtCreateThread", "RtlCreateUserThread", "NtMapViewOfSection"],
+    "categories": ["injection", "process"]
+  },
+  {
+    "name": "anti_debug",
+    "description": "Anti-debugging markers",
+    "import_patterns": ["IsDebuggerPresent", "CheckRemoteDebuggerPresent", "NtQueryInformationProcess"],
+    "string_patterns": ["Debugger detected", "Being debugged"],
+    "categories": ["anti_analysis"]
+  }
+]
