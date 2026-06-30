@@ -13,7 +13,12 @@ venv/
 env/
 .env
 *.reeve.json
+*.ai_re.json
 *.report.md
+*.report.html
+*.report.json
+*.report.txt
+*_kb/
 *.report.html
 *.report.json
 *.report.txt

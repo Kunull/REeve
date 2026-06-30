@@ -127,6 +127,15 @@ class Session:
             }
             for h in self.graph._hypotheses.values()
         ]
+        components = [
+            {
+                "id": c.id,
+                "name": c.name,
+                "purpose": c.purpose,
+                "confidence": c.confidence,
+            }
+            for c in self.graph.all_components()
+        ]
         state = {
             "session_id": self.id,
             "goal": self.goal,
@@ -137,6 +146,7 @@ class Session:
             "mutations": len(self.mutation_log),
             "functions": functions,
             "hypotheses": hypotheses,
+            "components": components,
         }
         path.write_text(json.dumps(state, indent=2))
         logger.info("Session saved to %s", path)

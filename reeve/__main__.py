@@ -48,7 +48,7 @@ def _open_host(binary_path: str):
         )
 
 
-def _run_analysis(binary_path: str, goal: str, budget: float, tui: bool, verbose: bool) -> None:
+def _run_analysis(binary_path: str, goal: str, budget: float, tui: bool, verbose: bool, kb: bool = False) -> None:
     import reeve.planning.handlers  # noqa: F401 — registers all handlers
     from reeve.core.session import Session
     from reeve.planning.executor import TaskExecutor
@@ -103,6 +103,12 @@ def _run_analysis(binary_path: str, goal: str, budget: float, tui: bool, verbose
         report_path = session.save_report(fmt="md")
         if report_path:
             console.print(f"[green]Report saved  → {report_path}[/green]")
+
+        if kb:
+            from reeve.knowledge_base import KnowledgeBaseBuilder
+            builder = KnowledgeBaseBuilder()
+            kb_path = builder.build(session, decompile_fn=host.decompile)
+            console.print(f"[green]Knowledge base → {kb_path}[/green]")
     finally:
         host_ctx.__exit__(None, None, None)
 
@@ -122,11 +128,88 @@ def cli(ctx: click.Context, verbose: bool) -> None:
 @click.option("--goal", "-g", default="full analysis", show_default=True, help="Analysis objective")
 @click.option("--budget", "-b", type=float, default=float("inf"), help="Cost ceiling in USD")
 @click.option("--tui/--no-tui", default=False, help="Launch Textual TUI")
+@click.option("--kb/--no-kb", default=False, help="Build Obsidian knowledge base after analysis")
 @click.pass_context
-def analyze(ctx: click.Context, binary: str, goal: str, budget: float, tui: bool) -> None:
+def analyze(ctx: click.Context, binary: str, goal: str, budget: float, tui: bool, kb: bool) -> None:
     """Run autonomous analysis on a binary."""
-    console.print(f"[bold]re analyze[/bold]  binary={binary}  goal={goal!r}  budget=${budget}")
-    _run_analysis(binary, goal, budget, tui, ctx.obj["verbose"])
+    console.print(f"[bold]reeve analyze[/bold]  binary={binary}  goal={goal!r}  budget=${budget}")
+    _run_analysis(binary, goal, budget, tui, ctx.obj["verbose"], kb=kb)
+
+
+@cli.command()
+@click.argument("session_json", type=click.Path(exists=True))
+@click.option("--output", "-o", type=click.Path(), default=None, help="Output vault directory")
+@click.pass_context
+def kb(ctx: click.Context, session_json: str, output: Optional[str]) -> None:
+    """Build an Obsidian knowledge base from a saved session JSON."""
+    import json as _json
+    from reeve.core.knowledge_graph import (
+        Fact, FactSource, FunctionNode, KnowledgeGraph, SizeClass,
+        ComponentNode, HypothesisNode, HypothesisStatus, ImportNode, StringNode,
+    )
+    from reeve.core.session import Session
+    from reeve.core.hypothesis import HypothesisEngine
+    from reeve.llm.usage import CostTracker
+    from reeve.knowledge_base import KnowledgeBaseBuilder
+
+    data = _json.loads(Path(session_json).read_text())
+
+    # Reconstruct a lightweight session from the saved JSON
+    graph = KnowledgeGraph()
+
+    for entry in data.get("functions", []):
+        address = entry.get("address", 0)
+        if isinstance(address, str):
+            address = int(address, 16)
+        fn = FunctionNode.unanalyzed(address, entry.get("raw_name", f"sub_{address:x}"))
+        fn.name = Fact(
+            value=entry.get("name", fn.raw_name),
+            confidence=entry.get("confidence", 0.5),
+            source=FactSource.LLM,
+        )
+        fn.prototype = Fact(
+            value=entry.get("prototype"),
+            confidence=entry.get("confidence", 0.5),
+            source=FactSource.LLM,
+        )
+        fn.comment = entry.get("comment")
+        fn.component_id = entry.get("component_id")
+        graph.add_function(fn)
+
+    for c_data in data.get("components", []):
+        comp = ComponentNode(
+            id=c_data.get("id", ""),
+            name=c_data.get("name"),
+            purpose=c_data.get("purpose"),
+            confidence=float(c_data.get("confidence", 0.0)),
+        )
+        graph._components[comp.id] = comp
+
+    for h_data in data.get("hypotheses", []):
+        h = HypothesisNode(
+            id=h_data.get("id", ""),
+            claim=h_data.get("claim", ""),
+            confidence=float(h_data.get("confidence", 0.0)),
+        )
+        graph.add_hypothesis(h)
+
+    class _FakeHost:
+        binary_path = data.get("binary_path", session_json)
+
+    class _FakeSession:
+        id = data.get("session_id", "unknown")
+        goal = data.get("goal", "")
+        binary_path = data.get("binary_path", session_json)
+        report = data.get("report")
+        cost_tracker = CostTracker()
+
+    fake = _FakeSession()
+    fake.graph = graph
+
+    out = Path(output) if output else None
+    builder = KnowledgeBaseBuilder()
+    kb_path = builder.build(fake, output_dir=out)
+    console.print(f"[green]Knowledge base → {kb_path}[/green]")
 
 
 @cli.command()
