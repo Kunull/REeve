@@ -44,6 +44,12 @@ class TokenUsage:
         return self
 
 
+@dataclass
+class ChatResponse:
+    message: Message
+    usage: TokenUsage = field(default_factory=TokenUsage)
+
+
 class LLMClient(ABC):
     @abstractmethod
     def chat(
@@ -53,7 +59,7 @@ class LLMClient(ABC):
         system: str,
         max_tokens: int = 4096,
         temperature: float = 0.0,
-    ) -> Message: ...
+    ) -> ChatResponse: ...
 
     @abstractmethod
     def chat_stream(

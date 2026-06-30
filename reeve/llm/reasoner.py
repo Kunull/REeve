@@ -122,7 +122,7 @@ class LLMReasoner:
         messages = [Message(role="user", content=user_content)]
 
         try:
-            response = self._client.chat(
+            resp = self._client.chat(
                 messages=messages,
                 tools=[],
                 system=_SYSTEM_PROMPT,
@@ -138,18 +138,20 @@ class LLMReasoner:
                 evidence_summary=f"LLM call failed: {exc}",
             )
 
-        return _parse_response(response.content, request.function.address)
+        self._cost_tracker.record(self._client.model_id, resp.usage)
+        return _parse_response(resp.message.content, request.function.address)
 
     def answer_question(self, question: str, context: str) -> str:
         messages = [Message(role="user", content=f"Context:\n{context}\n\nQuestion: {question}")]
         try:
-            response = self._client.chat(
+            resp = self._client.chat(
                 messages=messages,
                 tools=[],
                 system="You are a binary reverse engineering assistant. Answer the question based on the analysis context provided.",
                 max_tokens=2048,
             )
-            return response.content
+            self._cost_tracker.record(self._client.model_id, resp.usage)
+            return resp.message.content
         except Exception as exc:
             return f"[Error: {exc}]"
 
@@ -159,13 +161,14 @@ class LLMReasoner:
             content=f"Binary analysis summary:\n{graph_summary}\n\nProvide a unified analysis: unify naming conventions, identify the overall architecture, list key components, and summarize the binary's purpose.",
         )]
         try:
-            response = self._client.chat(
+            resp = self._client.chat(
                 messages=messages,
                 tools=[],
                 system="You are a senior reverse engineer performing global synthesis of a full binary analysis.",
                 max_tokens=4096,
             )
-            return response.content
+            self._cost_tracker.record(self._client.model_id, resp.usage)
+            return resp.message.content
         except Exception as exc:
             return f"[Global synthesis failed: {exc}]"
 
@@ -206,13 +209,14 @@ Be specific — use function names and addresses from the provided analysis."""
             content=f"Analysis goal: {goal}\n\n{graph_summary}\n\nWrite the full structured report now.",
         )]
         try:
-            response = self._client.chat(
+            resp = self._client.chat(
                 messages=messages,
                 tools=[],
                 system=system,
                 max_tokens=8192,
             )
-            return response.content
+            self._cost_tracker.record(self._client.model_id, resp.usage)
+            return resp.message.content
         except Exception as exc:
             return f"[Report generation failed: {exc}]"
 
@@ -222,13 +226,14 @@ Be specific — use function names and addresses from the provided analysis."""
             content=f"Component analysis:\n{component_summary}\n\nForm a specific testable hypothesis about: {claim_template}",
         )]
         try:
-            response = self._client.chat(
+            resp = self._client.chat(
                 messages=messages,
                 tools=[],
                 system="You are a reverse engineer forming testable hypotheses about binary components. Be specific and falsifiable.",
                 max_tokens=512,
             )
-            return response.content.strip()
+            self._cost_tracker.record(self._client.model_id, resp.usage)
+            return resp.message.content.strip()
         except Exception as exc:
             return claim_template
 

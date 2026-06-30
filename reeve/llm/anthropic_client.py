@@ -11,7 +11,7 @@ from typing import Any, Dict, Generator, List, Optional
 
 import anthropic
 
-from reeve.llm.base import LLMClient, Message, StreamChunk, TokenUsage
+from reeve.llm.base import ChatResponse, LLMClient, Message, StreamChunk, TokenUsage
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class AnthropicClient(LLMClient):
         system: str,
         max_tokens: int = 4096,
         temperature: float = 0.0,
-    ) -> Message:
+    ) -> ChatResponse:
         anthropic_messages = _to_anthropic_messages(messages)
         system_blocks = _build_system_blocks(system)
         kwargs: Dict[str, Any] = {
@@ -106,7 +106,17 @@ class AnthropicClient(LLMClient):
                     "input": block.input,
                 })
 
-        return Message(role="assistant", content=content_text, tool_calls=tool_calls)
+        u = response.usage
+        usage = TokenUsage(
+            input_tokens=getattr(u, "input_tokens", 0),
+            output_tokens=getattr(u, "output_tokens", 0),
+            cache_read_tokens=getattr(u, "cache_read_input_tokens", 0),
+            cache_write_tokens=getattr(u, "cache_creation_input_tokens", 0),
+        )
+        return ChatResponse(
+            message=Message(role="assistant", content=content_text, tool_calls=tool_calls),
+            usage=usage,
+        )
 
     def chat_stream(
         self,
