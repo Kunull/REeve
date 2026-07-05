@@ -2,8 +2,6 @@
 
 An AI-powered binary reverse engineering **assistant**. REeve combines Ghidra's static analysis with Claude's reasoning to autonomously analyze binaries — naming functions, identifying vulnerabilities, forming hypotheses, and generating structured reports.
 
-> Submitted to Black Hat Arsenal India 2026.
-
 ---
 
 ## Why REeve
